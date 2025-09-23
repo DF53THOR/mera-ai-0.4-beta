@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mera Beta 0.3 - PC Bileşenleri Asistanı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #fdbb2d;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --user-msg-bg: #3498db;
+            --ai-msg-bg: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --primary-color: #1a252f;
+            --secondary-color: #2980b9;
+            --accent-color: #f39c12;
+            --text-color: #ecf0f1;
+            --bg-color: #2c3e50;
+            --card-bg: #34495e;
+            --border-color: #4a6572;
+            --user-msg-bg: #2980b9;
+            --ai-msg-bg: #4a6572;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+
+        /* Hoşgeldin Animasyonu */
+        .welcome-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .animation-content {
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* GIF Logo */
+        .logo-gif {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        .welcome-animation h1 {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: slideInFromLeft 1.5s ease-out;
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3498db, #fdbb2d);
+            border-radius: 3px;
+            animation: loading 2s ease-in-out forwards;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Ana Konteyner */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            animation: containerSlideIn 0.8s ease-out;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes containerSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), #4a6491);
+            color: white;
+            padding: 20px 25px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        #all-questions-btn {
+            padding: 10px 15px;
+            background: linear-gradient(to bottom, var(--accent-color), #f46b45);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #all-questions-btn:hover {
+            background: linear-gradient(to bottom, #ffcc44, #f57c50);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-container {
+            padding: 25px;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        /* Mesaj Animasyonları */
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 85%;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.4s ease-out forwards;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user-message {
+            background: linear-gradient(to right, var(--user-msg-bg), var(--primary-color));
+            color: white;
+            margin-left: auto;
+            animation-delay: 0.1s;
+        }
+
+        .message.ai-message {
+            background: linear-gradient(to right, var(--ai-msg-bg), #f0f0f0);
+            color: var(--text-color);
+            border-left: 4px solid var(--primary-color);
+            animation-delay: 0.2s;
+        }
+
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-message .message-header {
+            color: #e0e0e0;
+            text-align: right;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .message-action-btn:hover {
+            opacity: 1;
+        }
+
+        .message p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Düşünüyor Animasyonu */
+        .thinking-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .thinking-animation span {
+            height: 8px;
+            width: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .thinking-animation span:nth-child(1) { animation-delay: 0s; }
+        .thinking-animation span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-animation span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 15px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        #user-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        #send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(to bottom, var(--primary-color), #1a252f);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+        }
+
+        #send-btn:hover {
+            background: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #send-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Modal stilleri */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s;
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--primary-color), #4a6491);
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        #question-search {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        #question-search:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .questions-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-item {
+            padding: 12px 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--secondary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-item:hover {
+            background-color: var(--ai-msg-bg);
+            transform: translateX(5px);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .favorite-btn.active {
+            color: var(--accent-color);
+        }
+
+        .favorite-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* Öneri Butonları */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-btn {
+            padding: 8px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: var(--text-color);
+        }
+
+        .suggestion-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Kaydırma çubuğu stilleri */
+        .chat-box::-webkit-scrollbar,
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track,
+        .modal-body::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb,
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb:hover,
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Responsive tasarım */
+        @media (max-width: 768px) {
+            .logo-gif {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .welcome-animation h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .header-logo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .header-text h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-gif {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .welcome-animation h1 {
+                font-size: 1.4rem;
+            }
+            
+            .loading-bar {
+                width: 250px;
+            }
+            
+            .container {
+                width: 95%;
+            }
+            
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .chat-container {
+                padding: 15px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .input-area {
+                flex-direction: column;
+            }
+            
+            #send-btn {
+                width: 100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .suggestions {
+                justify-content: center;
+            }
+        }
+
+        /* Bildirim */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hoşgeldin Animasyonu -->
+    <div id="welcome-animation" class="welcome-animation">
+        <div class="animation-content">
+            <!-- GIF Logo -->
+            <img src="Black and White Modern AI Logo.png" alt="Mera Beta 0.3" class="logo-gif">
+            <h1>PC Bileşenleri Asistanına Hoşgeldiniz</h1>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;">
+        <header>
+            <div class="header-content">
+                <img src="Black and White Modern AI Logo.png" alt="Mera Logo" class="header-logo">
+                <div class="header-text">
+                    <h1>Mera Beta 0.3 - PC Bileşenleri Asistanı</h1>
+                    <p>Gelişmiş özelliklerle daha akıllı asistan deneyimi</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="all-questions-btn">Tüm Sorular</button>
+            </div>
+        </header>
+
+        <div class="chat-container">
+            <div id="chat-box" class="chat-box">
+                <!-- İlk mesaj JavaScript ile eklenecek -->
+            </div>
+
+            <!-- Öneri Butonları -->
+            <div id="suggestions" class="suggestions">
+                <!-- Öneriler JavaScript ile eklenecek -->
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Sorunuzu buraya yazın...">
+                <button id="send-btn">
+                    <span class="btn-text">Gönder</span>
+                    <span class="btn-loading" style="display: none;">
+                        <div class="typing-animation">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div id="questions-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Sorabileceğiniz Sorular</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="question-search" placeholder="Sorularda arama...">
+                    </div>
+                    <div id="questions-list" class="questions-list">
+                        <!-- Sorular JavaScript ile buraya eklenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Mesaj kopyalandı!</div>
+
+    <script>
+        // Gelişmiş veritabanı - PC bileşenleri hakkında sorular ve cevaplar
+        const knowledgeBase = [
+            // RTX 5000 SERİSİ SORULARI
+            {
+                question: "rtx 5090 nasıl bir ekran kartı alınırmı",
+                answer:"nvıdıanın tanıttığı en iyi ekran kartı amd tarafında düzgün rakip yoktur 32gb vram dlss 4 multi freme generetion ve bir sürü özelliği vardır 4k da yüksek fps alırsınız fiyatı 150000tl civarı türkiye koşullarında para sıkıntın varsa alınmaz."
+            },
+            {
+                question: "rtx 5080 nasıl bir ekran kartı alınırmı",
+                answer: "rtx 5080 nvıdıanın en iyi ekran kartlarından birtanesidir rtx 5090 da bulunan tüm dlss gibi özellikleri içinde barındırıyor 16gb vram ile oyuncuları üzsede 4k da iş gören bir ekran kartı fiyatı ise 75000tl den 80000tl ye çıkmaktadır türkiye koşullarında alınabilir ama rtx 5070 ti önerilir",
+            },
+            {
+                question: "rtx 5070 ti nasıl bir ekran kartı alınırmı",
+                answer: "RTX 5070 ti, 1440p gaming mükkemmel bir seçenektir ama amd nin rx 9070xt kartı daha ucuz ve iyidir. özellikler: 16GB GDDR7 bellek, gelişmiş enerji verimliliği ve RTX 4070'e göre %40-50 daha iyi performans. Orta-üst seviye oyuncular için mükemmel bir seçenektir fiyatı ise 60000tl arasında değişiyor"
+            },
+            {
+                question: "rtx 5060 nasıl bir ekran kartı alınırmı",
+                answer: "RTX 5060, 1080p gaming için tasarlanmış bütçe dostu bir modeldir. özellikler: 8GB GDDR7 bellek ile  oyuncuları üzmüştür, DLSS 4 desteği ve RTX 4060'a göre %30 daha iyi performans. Enerji verimliliği önemli ölçüde arttı fiyatı 15000-17000tl arasında değişiyor."
+            },
+            {
+                question: "rtx 5070 nasıl bir ekran kartı alınırmı",
+                answer: "rtx 5070 1440p için yeterlidir 1080p için çok iyidir 12gb ddr7 belleği vardır orta oyuncular için iyi seçenektir fiyatı 33000-42000tl arasında değişiyor alınabilir bir ekran kartı."
+            },
+            {
+                question: "rtx 5060 ti nasıl bir ekran kartı alınırmı",
+                answer: "rtx 5060ti 1080p için iyidir 8gb ve 16gb modelleri vardır rx 9060xt karşısında alınmaz bir ekran kartı 22000-26000tl arasında değişiyor"
+            },
+
+            // GÜNDELİK SOHBET SORULARI
+            {
+                question: "nasılsın",
+                answer: "Teşekkür ederim! Ben Mera Beta 0.3, her zaman iyiyim. Size nasıl yardımcı olabilirim? PC bileşenleri hakkında sorularınız mı var?"
+            },
+            {
+                question: "ne yapıyorsun",
+                answer: "Şu anda sizinle sohbet ediyorum ve PC bileşenleri hakkında sorularınızı yanıtlamaya hazırım! RTX 5000 serisi, işlemciler, RAM'ler veya başka konularda bilgi almak ister misiniz?"
+            },
+            {
+                question: "sen kimsin",
+                answer: "Ben Mera Beta 0.3! PC bileşenleri konusunda size yardımcı olmak için tasarlanmış gelişmiş bir yapay zeka asistanıyım. Ekran kartları, işlemciler, anakartlar ve diğer bileşenler hakkında sorularınızı yanıtlayabilirim."
+            },
+            {
+                question: "kaç yaşındasın",
+                answer: "Ben bir yapay zeka programıyım, bu yüzden geleneksel anlamda bir yaşım yok. Ancak sürekli olarak güncelleniyor ve geliştiriliyorum! 🚀"
+            },
+            {
+                question: "nerelisin",
+                answer: "Ben dijital bir varlığım, bu yüzden fiziksel bir konumum yok. Ancak dünyanın her yerinden kullanıcılara PC bileşenleri konusunda yardımcı olabiliyorum!"
+            },
+            {
+                question: "ne kadar akıllısın",
+                answer: "PC bileşenleri konusunda oldukça bilgiliyim! RTX 5000 serisinden DDR5 belleklerine, işlemci karşılaştırmalarından soğutma sistemlerine kadar birçok konuda size rehberlik edebilirim. Ama tabii ki, insan zekasının yerini tutamam! 😊"
+            },
+            {
+                question: "hangi oyunları oynuyorsun",
+                answer: "Maalesef oyun oynayamam, çünkü bir yapay zeka asistanıyım. Ancak hangi oyunları oynamak istediğinizi söylerseniz, size uygun PC bileşenleri konusunda tavsiyelerde bulunabilirim! 🎮"
+            },
+            {
+                question: "seni kim yaptı",
+                answer: "Beni geliştiren ekip, kullanıcıların PC bileşenleri hakkında kolayca bilgi alabilmeleri için beni tasarladı. Amacım, karmaşık teknik konuları anlaşılır bir şekilde açıklamak!"
+            },
+
+            // RTX 2000 SERİSİ SORULARI
+            {
+                question: "rtx 2080 ti",
+                answer: "RTX 2080 Ti, RTX 2000 serisinin flagsip modeliydi. 11GB GDDR6 bellek, 4352 CUDA çekirdeği ve Turing mimarisi. 1440p ve 4K gaming için hala yeterli performans sunuyor. Ray tracing teknolojisini destekleyen ilk kartlardandı."
+            },
+            {
+                question: "rtx 2070 super",
+                answer: "RTX 2070 Super, 1440p gaming için mükemmel bir karttı. 8GB GDDR6 bellek ve 2560 CUDA çekirdeği. RTX 2060 Super'a göre %15-20 daha iyi performans sunuyor. Günümüz oyunlarında hala iyi sonuçlar veriyor."
+            },
+            {
+                question: "rtx 2060",
+                answer: "RTX 2060, bütçe dostu ray tracing kartıydı. 6GB GDDR6 bellek ve 1920 CUDA çekirdeği. 1080p gaming için ideal ve DLSS desteği sayesinde daha yüksek çözünürlüklerde de oynatabiliyor."
+            },
+            {
+                question: "rtx 2000 serisi vs 3000 serisi",
+                answer: "RTX 3000 serisi, 2000 serisine göre belirgin performans avantajı sunar. RTX 3060, RTX 2070 Super ile benzer performansta. RTX 3000 serisi daha iyi ray tracing performansı, daha yüksek enerji verimliliği ve daha gelişmiş DLSS teknolojisine sahip."
+            },
+
+            // GÜNDELİK SORULAR
+            {
+                question: "bilgisayarım neden yavaş",
+                answer: "Bilgisayarınızın yavaşlamasının birçok nedeni olabilir: yetersiz RAM, dolu depolama alanı, eski sürücüler, arka planda çalışan gereksiz uygulamalar, virüs/malware, aşırı ısınma veya eski donanım. SSD'ye geçiş ve RAM artırımı en etkili çözümlerdir."
+            },
+            {
+                question: "oyun bilgisayarı kaç para",
+                answer: "Oyun bilgisayarı fiyatları kullanılacak bileşenlere göre değişir: \n• Temel seviye (1080p): 15-20 bin TL\n• Orta seviye (1440p): 25-35 bin TL\n• Üst seviye (4K): 40-60 bin TL\n• Profesyonel: 60+ bin TL\nFiyatlar bileşen kalitesine ve markasına göre değişiklik gösterebilir."
+            },
+            {
+                question: "hangi marka anakart iyi",
+                answer: "Kaliteli anakart markaları: ASUS, MSI, Gigabyte, ASRock. ASUS en güvenilir markalardan biridir. MSI iyi fiyat/performans oranı sunar. Gigabyte dayanıklılığı ile bilinir. Bütçenize ve ihtiyaçlarınıza göre seçim yapabilirsiniz."
+            },
+            {
+                question: "ssd mi hdd mi",
+                answer: "SSD kesinlikle daha iyi! SSD'ler HDD'lere göre 5-10 kat daha hızlıdır. İşletim sistemi, oyunlar ve sık kullanılan uygulamalar için SSD, büyük dosyalar ve yedekleme için HDD kullanabilirsiniz. SSD bilgisayarınızın performansını gözle görülür şekilde artırır."
+            },
+            {
+                question: "kaç inç monitör almalıyım",
+                answer: "Monitör boyutu kullanım amacınıza göre değişir: \n• 24 inç: Ofis ve temel kullanım\n• 27 inç: Oyun ve multimedya (en popüler)\n• 32 inç ve üzeri: Profesyonel işler ve immersif deneyim\nÇözünürlük de önemli: 1080p için 24 inç, 1440p için 27 inç, 4K için 32 inç ideal."
+            },
+            {
+                question: "bilgisayar toplamak zor mu",
+                answer: "Bilgisayar toplamak zor değil, dikkat ve özen gerektirir. YouTube'daki rehber videoları ile kolayca öğrenebilirsiniz. Önemli noktalar: bileşen uyumluluğu, statik elektrikten korunma ve kabloların doğru bağlanması. İlk defa toplayacaksanız deneyimli birinden yardım alabilirsiniz."
+            },
+            {
+                question: "oyun için kaç fps yeterli",
+                answer: "Minimum FPS değerleri: \n• 30 FPS: Oynanabilir seviye\n• 60 FPS: Akıcı deneyim\n• 120 FPS: Competitive gaming\n• 144+ FPS: Profesyonel seviye\nMonitörünüzün refresh rate'i de önemli. 60Hz monitörde 60 FPS, 144Hz'de 144 FPS idealdir."
+            },
+            {
+                question: "bilgisayarım neden ısınıyor",
+                answer: "Bilgisayar ısınmasının nedenleri: toz birikimi, yetersiz soğutma, termal macun ömrünün dolması, aşırı overclock, yetersiz kasa hava akışı. Çözümler: periyodik temizlik, kaliteli soğutucu, termal macun yenileme, kasa fanları ekleme."
+            },
+            {
+                question: "hangi işletim sistemi daha iyi",
+                answer: "Windows 11 en güncel ve güvenli sürüm. Windows 10 hala destekleniyor ve kararlı. Linux ücretsiz ve özelleştirilebilir, ancak oyun desteği sınırlı. macOS Apple kullanıcıları için ideal. Kullanım amacınıza göre seçim yapın."
+            },
+            {
+                question: "internetim neden yavaş",
+                answer: "İnternet yavaşlığı nedenleri: zayıf Wi-Fi sinyali, modem sorunları, ağ yoğunluğu, eski ağ kartı, arka planda indirme/yükleme. Çözümler: kablolu bağlantı, modem yenileme, Wi-Fi kanalı değiştirme, ağ kartı güncelleme."
+            },
+
+            // ESKİ SORULAR
+            {
+                question: "rtx 3060",
+                answer: "NVIDIA RTX 3060, orta seviye bir oyun ekran kartıdır. 12GB GDDR6 belleğe sahiptir ve 1080p ve 1440p çözünürlüklerde rahatlıkla oyun oynatabilir. Ray tracing teknolojisini destekler."
+            },
+            {
+                question: "rx 6600",
+                answer: "AMD Radeon RX 6600, NVIDIA'nın RTX 3060'ına rakip olarak çıkarılmış bir ekran kartıdır. 8GB GDDR6 belleğe sahiptir. 1080p oyun performansı oldukça iyidir ve genellikle fiyat/performans oranı yüksektir."
+            },
+            {
+                question: "intel i5 mi i7 mi",
+                answer: "İhtiyaçlarınıza göre değişir: \n• İ5: Günlük kullanım, ofis, hafif oyunlar için yeterli\n• İ7: Oyun, video düzenleme, 3D modelleme için ideal\n• İ9: Profesyonel işler, streaming, heavy gaming için\nBütçeniz yetiyorsa i7 daha iyi gelecek performans sunar."
+            },
+            {
+                question: "amd mi intel mi",
+                answer: "Her ikisi de iyi seçenekler: \n• AMD: Genellikle daha iyi fiyat/performans, daha fazla çekirdek\n• Intel: Daha yüksek tek çekirdek performansı, daha iyi oyun performansı\nKullanım amacınıza ve bütçenize göre seçim yapmalısınız."
+            },
+            {
+                question: "ram ne işe yarar",
+                answer: "RAM (Random Access Memory), bilgisayarın geçici hafızasıdır. Açık programlar, oyunlar ve işletim sistemi tarafından kullanılır. Daha fazla RAM, daha fazla programı aynı anda sorunsuz çalıştırmanızı sağlar. 8GB temel, 16GB oyun, 32GB+ profesyonel işler için önerilir."
+            },
+            {
+                question: "ssd alırken nelere dikkat etmeli",
+                answer: "SSD alırken dikkat edilmesi gerekenler: \n• Kapasite (250GB-4TB)\n• Okuma/Yazma hızları\n• NVMe vs SATA (NVMe daha hızlı)\n• TBW (Toplam Yazma Dayanıklılığı)\n• Marka güvenilirliği\n• Garanti süresi"
+            },
+            {
+                question: "oyun için hangi işlemci",
+                answer: "Oyun için işlemci seçerken: \n• Yüksek saat hızı önemli\n• 6 çekirdek ve üzeri tercih edin\n• Intel i5/i7 veya AMD Ryzen 5/7\n• Soğutma performansına dikkat edin\n• Bütçenize uygun en iyi işlemciyi seçin"
+            },
+            {
+                question: "ekran kartı alırken nelere dikkat etmeli",
+                answer: "Ekran kartı alırken dikkat edilmesi gerekenler: \n• Bellek miktarı (8GB+ önerilir)\n• Bellek hızı ve türü\n• Soğutma performansı\n• Güç tüketimi\n• Fiyat/performans oranı\n• Marka ve garanti\n• Kasanıza uygun boyut"
+            },
+            {
+                question: "psu nedir",
+                answer: "PSU (Power Supply Unit), bilgisayarın güç kaynağıdır. Tüm bileşenlere elektrik sağlar. Kaliteli bir PSU seçmek önemlidir: \n• Watt değeri (sistem ihtiyacına göre)\n• 80 Plus sertifikası (verimlilik)\n• Marka güvenilirliği\n• Modüler kablolama\n• Garanti süresi"
+            },
+            {
+                question: "overclock nedir",
+                answer: "Overclock, bileşenleri fabrika ayarlarından daha yüksek hızlarda çalıştırmaktır. Performans artışı sağlar ancak: \n• Daha fazla ısınma\n• Güç tüketiminde artış\n• Donanım ömründe kısalma\n• Garanti kaybı riskleri vardır. Dikkatli yapılmalıdır."
+            },
+
+            // YENİ SORULAR
+            {
+                question: "ddr5 ram almalı mıyım",
+                answer: "DDR5 RAM, DDR4'e göre daha yüksek hız ve verimlilik sunar. Ancak: \n• Anakart desteği gerektirir\n• Fiyatları daha yüksek\n• Gerçek dünya performans farkı bazı uygulamalarda sınırlı\n• Yeni sistem toplayacaksanız DDR5 mantıklı, mevcut sistemde DDR4 yeterli."
+            },
+            {
+                question: "sıvı soğutma gerekli mi",
+                answer: "Sıvı soğutma: \n• Üst seviye işlemciler için ideal\n• Daha iyi ısı dağılımı\n• Daha sessiz çalışma\n• Kurulumu daha zor\n• Havalı soğutucular çoğu kullanıcı için yeterli\n• Overclock yapacaksanız sıvı soğutma önerilir."
+            },
+            {
+                question: "oyunlarda kasma nasıl önlenir",
+                answer: "Oyunlarda kasma önleme yöntemleri: \n• Sürücüleri güncel tutun\n• Arka plan uygulamalarını kapatın\n• Oyun ayarlarını optimize edin\n• Isınmayı kontrol edin\n• RAM ve VRAM kullanımını izleyin\n• SSD'ye yükleyin\n• Windows güç ayarlarını yüksek performansa getirin"
+            },
+            {
+                question: "ekran kartı sürücüsü nasıl güncellenir",
+                answer: "Ekran kartı sürücüsü güncelleme: \n• NVIDIA: GeForce Experience uygulaması\n• AMD: Radeon Software uygulaması\n• Manuel: Üretici websitesinden indirin\n• DDU ile eski sürücüleri temizleyin\n• Düzenli güncelleme performans ve stabilite için önemli"
+            },
+            {
+                question: "bilgisayarım açılmıyor",
+                answer: "Bilgisayar açılmama sorunları: \n• Güç kaynağını kontrol edin\n• Kabloları kontrol edin\n• RAM'leri temizleyin\n• Ekran kartını kontrol edin\n• BIOS pilini değiştirin\n• Donanımları teker teker test edin\n• Profesyonel yardım alın"
+            }
+        ];
+
+        // Öneri motoru için sorular
+        const suggestionQuestions = [
+            "rtx 5090 nasıl bir ekran kartı alınırmı",
+            "rtx 5080 nasıl bir ekran kartı alınırmı", 
+            "bilgisayarım neden yavaş",
+            "hangi işlemci daha iyi",
+            "ssd mi hdd mi",
+            "oyun için kaç fps yeterli",
+            "ddr5 ram almalı mıyım",
+            "ekran kartı alırken nelere dikkat etmeli"
+        ];
+
+        // Sayfa yüklendiğinde çalışacak fonksiyon
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hoşgeldin animasyonunu göster
+            const welcomeAnimation = document.getElementById('welcome-animation');
+            const container = document.querySelector('.container');
+            
+            // 3 saniye sonra hoşgeldin animasyonunu kapat ve ana içeriği göster
+            setTimeout(() => {
+                welcomeAnimation.style.display = 'none';
+                container.style.display = 'block';
+                
+                // Ana içerik gösterildikten sonra ilk mesajı ekle
+                setTimeout(() => {
+                    addMessageToChat("Merhaba! Hoşgeldiniz. Ben Mera Beta 0.3, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Sohbet geçmişinizi kaydediyor, favori sorular oluşturabiliyor ve bağlam hafızamla daha akıllı yanıtlar verebiliyorum!", 'ai');
+                    updateSuggestions();
+                    loadChatHistory();
+                }, 300);
+            }, 3000);
+            
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatBox = document.getElementById('chat-box');
+            const allQuestionsBtn = document.getElementById('all-questions-btn');
+            const modal = document.getElementById('questions-modal');
+            const closeBtn = document.querySelector('.close');
+            const questionsList = document.getElementById('questions-list');
+            const questionSearch = document.getElementById('question-search');
+            const themeToggle = document.getElementById('theme-toggle');
+            const notification = document.getElementById('notification');
+            const suggestionsContainer = document.getElementById('suggestions');
+            
+            // Sohbet geçmişi ve bağlam hafızası
+            let chatContext = [];
+            const MAX_CONTEXT_LENGTH = 10;
+            
+            // Tema değiştirme
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // Tüm sorular modalını açma/kapama
+            allQuestionsBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+                populateQuestionsList();
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Soru arama
+            questionSearch.addEventListener('input', function() {
+                populateQuestionsList(this.value.toLowerCase());
+            });
+            
+            // Soru listesini doldur
+            function populateQuestionsList(searchTerm = '') {
+                questionsList.innerHTML = '';
+                knowledgeBase.forEach((item, index) => {
+                    if (searchTerm === '' || item.question.toLowerCase().includes(searchTerm)) {
+                        const questionItem = document.createElement('div');
+                        questionItem.classList.add('question-item');
+                        
+                        const questionText = document.createElement('div');
+                        questionText.textContent = item.question;
+                        
+                        const favoriteBtn = document.createElement('button');
+                        favoriteBtn.classList.add('favorite-btn');
+                        favoriteBtn.innerHTML = '<i class="far fa-star"></i>';
+                        favoriteBtn.title = 'Favorilere ekle';
+                        
+                        // Favori kontrolü
+                        const favorites = getFavorites();
+                        if (favorites.includes(index)) {
+                            favoriteBtn.classList.add('active');
+                            favoriteBtn.innerHTML = '<i class="fas fa-star"></i>';
+                        }
+                        
+                        favoriteBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            toggleFavorite(index);
+                            populateQuestionsList(searchTerm);
+                        });
+                        
+                        questionItem.appendChild(questionText);
+                        questionItem.appendChild(favoriteBtn);
+                        
+                        questionItem.addEventListener('click', function() {
+                            userInput.value = item.question;
+                            modal.style.display = 'none';
+                            handleUserMessage();
+                        });
+                        
+                        questionsList.appendChild(questionItem);
+                    }
+                });
+            }
+            
+            // Öneri butonlarını güncelle
+            function updateSuggestions() {
+                suggestionsContainer.innerHTML = '';
+                suggestionQuestions.forEach(question => {
+                    const suggestionBtn = document.createElement('button');
+                    suggestionBtn.classList.add('suggestion-btn');
+                    suggestionBtn.textContent = question;
+                    suggestionBtn.addEventListener('click', function() {
+                        userInput.value = question;
+                        handleUserMessage();
+                    });
+                    suggestionsContainer.appendChild(suggestionBtn);
+                });
+            }
+            
+            // Favori yönetimi
+            function getFavorites() {
+                return JSON.parse(localStorage.getItem('meraFavorites')) || [];
+            }
+            
+            function toggleFavorite(index) {
+                const favorites = getFavorites();
+                const favoriteIndex = favorites.indexOf(index);
+                
+                if (favoriteIndex === -1) {
+                    favorites.push(index);
+                    showNotification('Favorilere eklendi!');
+                } else {
+                    favorites.splice(favoriteIndex, 1);
+                    showNotification('Favorilerden kaldırıldı!');
+                }
+                
+                localStorage.setItem('meraFavorites', JSON.stringify(favorites));
+            }
+            
+            // Sohbet geçmişi yükleme
+            function loadChatHistory() {
+                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
+                history.forEach(item => {
+                    addMessageToChat(item.question, 'user', false);
+                    addMessageToChat(item.answer, 'ai', false);
+                });
+            }
+            
+            // Sohbet geçmişi kaydetme
+            function saveToHistory(question, answer) {
+                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
+                history.push({
+                    question: question,
+                    answer: answer,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Son 50 mesajı sakla
+                if (history.length > 50) {
+                    history.splice(0, history.length - 50);
+                }
+                
+                localStorage.setItem('meraChatHistory', JSON.stringify(history));
+            }
+            
+            // Bağlam hafızası güncelleme
+            function updateContext(question, answer) {
+                chatContext.push({ role: 'user', content: question });
+                chatContext.push({ role: 'assistant', content: answer });
+                
+                if (chatContext.length > MAX_CONTEXT_LENGTH * 2) {
+                    chatContext = chatContext.slice(-MAX_CONTEXT_LENGTH * 2);
+                }
+            }
+            
+            // Gönder butonuna tıklama olayı
+            sendBtn.addEventListener('click', handleUserMessage);
+            
+            // Enter tuşuna basma olayı
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleUserMessage();
+                }
+            });
+            
+            function handleUserMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Gönder butonunda yükleme animasyonunu göster
+                const btnText = sendBtn.querySelector('.btn-text');
+                const btnLoading = sendBtn.querySelector('.btn-loading');
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'block';
+                
+                // Kullanıcı mesajını sohbet kutusuna ekle
+                addMessageToChat(message, 'user');
+                
+                // "Düşünülüyor..." mesajını göster
+                const thinkingMessage = addThinkingMessage();
+                
+                // Yapay zeka yanıtını al
+                setTimeout(() => {
+                    const response = getAIResponse(message);
+                    
+                    // "Düşünülüyor..." mesajını kaldır
+                    thinkingMessage.remove();
+                    
+                    // Yanıtı sohbet kutusuna ekle
+                    addMessageToChat(response, 'ai');
+                    
+                    // Geçmişe kaydet ve bağlamı güncelle
+                    saveToHistory(message, response);
+                    updateContext(message, response);
+                    
+                    // Yükleme animasyonunu kapat
+                    btnText.style.display = 'block';
+                    btnLoading.style.display = 'none';
+                    
+                    // Sohbet kutusunu en aşağı kaydır
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    
+                    // Önerileri güncelle
+                    updateSuggestions();
+                }, 2000);
+                
+                // Giriş alanını temizle
+                userInput.value = '';
+            }
+            
+            function addThinkingMessage() {
+                const thinkingElement = document.createElement('div');
+                thinkingElement.classList.add('message', 'ai-message');
+                thinkingElement.style.opacity = '0.7';
+                
+                const thinkingHeader = document.createElement('div');
+                thinkingHeader.classList.add('message-header');
+                thinkingHeader.textContent = 'Mera Beta 0.3 düşünüyor...';
+                
+                const thinkingAnimation = document.createElement('div');
+                thinkingAnimation.classList.add('thinking-animation');
+                thinkingAnimation.innerHTML = '<span></span><span></span><span></span>';
+                
+                thinkingElement.appendChild(thinkingHeader);
+                thinkingElement.appendChild(thinkingAnimation);
+                chatBox.appendChild(thinkingElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                return thinkingElement;
+            }
+            
+            function addMessageToChat(message, sender, animate = true) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.classList.add(sender + '-message');
+                
+                if (!animate) {
+                    messageElement.style.animation = 'none';
+                    messageElement.style.opacity = '1';
+                    messageElement.style.transform = 'translateY(0)';
+                }
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.classList.add('message-header');
+                
+                const senderName = document.createElement('div');
+                senderName.textContent = sender === 'user' ? 'Siz' : 'Mera Beta 0.3';
+                
+                const messageActions = document.createElement('div');
+                messageActions.classList.add('message-actions');
+                
+                if (sender === 'ai') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.classList.add('message-action-btn');
+                    copyBtn.innerHTML = '<i class="far fa-copy"></i>';
+                    copyBtn.title = 'Kopyala';
+                    copyBtn.addEventListener('click', function() {
+                        navigator.clipboard.writeText(message);
+                        showNotification('Mesaj kopyalandı!');
+                    });
+                    messageActions.appendChild(copyBtn);
+                }
+                
+                messageHeader.appendChild(senderName);
+                messageHeader.appendChild(messageActions);
+                
+                const messageText = document.createElement('p');
+                messageText.textContent = message;
+                
+                messageElement.appendChild(messageHeader);
+                messageElement.appendChild(messageText);
+                chatBox.appendChild(messageElement);
+                
+                // Sohbet kutusunu en aşağı kaydır
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                return messageElement;
+            }
+            
+            function showNotification(text) {
+                notification.textContent = text;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+            
+            function getAIResponse(userMessage) {
+                // Bağlam hafızasını kullanarak daha akıllı yanıtlar
+                const context = chatContext.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+                const fullMessage = context + '\nuser: ' + userMessage;
+                
+                // Gelen mesajı küçük harfe çevir ve soru işaretlerini kaldır
+                const normalizedMessage = userMessage.toLowerCase().replace('?', '').trim();
+                
+                // Bilgi tabanında eşleşen bir soru var mı kontrol et
+                for (const item of knowledgeBase) {
+                    // Soru tam eşleşme veya içerme kontrolü
+                    if (normalizedMessage === item.question || normalizedMessage.includes(item.question)) {
+                        return item.answer;
+                    }
+                }
+                
+                // Bağlamsal yanıtlar
+                if (chatContext.length > 0) {
+                    const lastMessage = chatContext[chatContext.length - 1].content;
+                    
+                    if (lastMessage.includes('teşekkür') && normalizedMessage.includes('rica')) {
+                        return "Her zaman buradayım! Başka sorularınız varsa sormaktan çekinmeyin. 😊";
+                    }
+                    
+                    if (lastMessage.includes('nasılsın') && normalizedMessage.includes('iyiyim')) {
+                        return "Harika! Size nasıl yardımcı olabilirim? PC bileşenleri hakkında merak ettiğiniz bir şey var mı?";
+                    }
+                }
+                
+                // Gündelik sohbet için özel kontroller
+                if (normalizedMessage.includes("nasılsın") || normalizedMessage.includes("nasilsin") || normalizedMessage.includes("iyi misin")) {
+                    return knowledgeBase.find(item => item.question === "nasılsın").answer;
+                }
+                
+                if (normalizedMessage.includes("ne yapıyorsun") || normalizedMessage.includes("napiyorsun") || normalizedMessage.includes("ne yapiyorsun")) {
+                    return knowledgeBase.find(item => item.question === "ne yapıyorsun").answer;
+                }
+                
+                if (normalizedMessage.includes("sen kimsin") || normalizedMessage.includes("kimsin")) {
+                    return knowledgeBase.find(item => item.question === "sen kimsin").answer;
+                }
+                
+                // RTX 5000 serisi için özel kontrol
+                if (normalizedMessage.includes("rtx 5090") || normalizedMessage.includes("5090")) {
+                    return knowledgeBase.find(item => item.question === "rtx 5090 nasıl bir ekran kartı alınırmı").answer;
+                }
+                if (normalizedMessage.includes("rtx 5080") || normalizedMessage.includes("5080")) {
+                    return knowledgeBase.find(item => item.question === "rtx 5080 nasıl bir ekran kartı alınırmı").answer;
+                }
+                if (normalizedMessage.includes("rtx 5070") || normalizedMessage.includes("5070")) {
+                    return knowledgeBase.find(item => item.question === "rtx 5070 nasıl bir ekran kartı alınırmı").answer;
+                }
+                if (normalizedMessage.includes("rtx 5060") || normalizedMessage.includes("5060")) {
+                    return knowledgeBase.find(item => item.question === "rtx 5060 nasıl bir ekran kartı alınırmı").answer;
+                }
+                
+                // Bazı basit selamlama durumları
+                if (normalizedMessage.includes('merhaba') || normalizedMessage.includes('selam') || normalizedMessage.includes('hello') || normalizedMessage.includes('hi')) {
+                    return "Merhaba! Ben Mera Beta 0.3. Size RTX 5000 serisi ve diğer PC bileşenleri hakkında nasıl yardımcı olabilirim?";
+                }
+                
+                if (normalizedMessage.includes('teşekkür') || normalizedMessage.includes('sağ ol') || normalizedMessage.includes('thanks') || normalizedMessage.includes('teşekkürler')) {
+                    return "Rica ederim! Başka bir konuda daha yardımcı olabilirim. Sorularınızı bekliyorum!";
+                }
+                
+                // Eğer eşleşme bulunamazsa
+                return "Üzgünüm, bu sorunuzu anlayamadım. Lütfen başka bir şekilde sorun veya 'Tüm Sorular' butonuna tıklayarak sorabileceğiniz soruları görebilirsiniz. RTX 5000 serisi veya diğer PC bileşenleri hakkında sorular sorabilirsiniz!";
+            }
+        });
+    </script>
+</body>
+</html>
