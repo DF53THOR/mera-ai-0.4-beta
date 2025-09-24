@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mera Beta 0.3 - PC Bileşenleri Asistanı</title>
+    <title>Mera Beta 0.4 - PC Bileşenleri Asistanı</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -349,6 +349,49 @@
             30% { transform: translateY(-5px); }
         }
 
+        /* Geçmiş Seçenek Butonları */
+        .history-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .history-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .history-yes {
+            background: linear-gradient(to bottom, #27ae60, #219653);
+            color: white;
+        }
+
+        .history-no {
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-message {
+            text-align: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+
         .input-area {
             display: flex;
             gap: 15px;
@@ -377,7 +420,7 @@
             background: linear-gradient(to bottom, var(--primary-color), #1a252f);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 88px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
@@ -605,6 +648,11 @@
             .header-text h1 {
                 font-size: 20px;
             }
+            
+            .history-options {
+                flex-direction: column;
+                align-items: center;
+            }
         }
 
         @media (max-width: 480px) {
@@ -684,7 +732,7 @@
     <div id="welcome-animation" class="welcome-animation">
         <div class="animation-content">
             <!-- GIF Logo -->
-            <img src="Black and White Modern AI Logo.png" alt="Mera Beta 0.3" class="logo-gif">
+            <img src="Black and White Modern AI Logo.png" alt="Mera Beta 0.4" class="logo-gif">
             <h1>PC Bileşenleri Asistanına Hoşgeldiniz</h1>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
@@ -697,7 +745,7 @@
             <div class="header-content">
                 <img src="Black and White Modern AI Logo.png" alt="Mera Logo" class="header-logo">
                 <div class="header-text">
-                    <h1>Mera Beta 0.3 - PC Bileşenleri Asistanı</h1>
+                    <h1>Mera Beta 0.4 - PC Bileşenleri Asistanı</h1>
                     <p>Gelişmiş özelliklerle daha akıllı asistan deneyimi</p>
                 </div>
             </div>
@@ -966,14 +1014,12 @@
                 welcomeAnimation.style.display = 'none';
                 container.style.display = 'block';
                 
-                // Ana içerik gösterildikten sonra ilk mesajı ekle
+                // Ana içerik gösterildikten sonra geçmiş seçeneğini sor
                 setTimeout(() => {
-                    addMessageToChat("Merhaba! Hoşgeldiniz. Ben Mera Beta 0.3, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Sohbet geçmişinizi kaydediyor, favori sorular oluşturabiliyor ve bağlam hafızamla daha akıllı yanıtlar verebiliyorum!", 'ai');
-                    updateSuggestions();
-                    loadChatHistory();
+                    askHistoryPreference();
                 }, 300);
             }, 3000);
-            
+
             const userInput = document.getElementById('user-input');
             const sendBtn = document.getElementById('send-btn');
             const chatBox = document.getElementById('chat-box');
@@ -990,6 +1036,97 @@
             let chatContext = [];
             const MAX_CONTEXT_LENGTH = 10;
             
+            // Geçmiş tercihini sor
+            function askHistoryPreference() {
+                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
+                
+                if (history.length > 0) {
+                    const historyMessage = document.createElement('div');
+                    historyMessage.classList.add('message', 'ai-message');
+                    
+                    const messageHeader = document.createElement('div');
+                    messageHeader.classList.add('message-header');
+                    messageHeader.textContent = 'Mera Beta 0.3';
+                    
+                    const messageText = document.createElement('p');
+                    messageText.innerHTML = `Merhaba! Önceki konuşma geçmişiniz bulundu (<strong>${history.length} mesaj</strong>).<br>Geçmiş mesajları geri getireyim mi?`;
+                    
+                    const historyOptions = document.createElement('div');
+                    historyOptions.classList.add('history-options');
+                    
+                    const yesBtn = document.createElement('button');
+                    yesBtn.classList.add('history-btn', 'history-yes');
+                    yesBtn.innerHTML = '<i class="fas fa-check"></i> Evet, Getir';
+                    yesBtn.onclick = function() {
+                        loadChatHistory();
+                        historyMessage.remove();
+                        addWelcomeMessage();
+                    };
+                    
+                    const noBtn = document.createElement('button');
+                    noBtn.classList.add('history-btn', 'history-no');
+                    noBtn.innerHTML = '<i class="fas fa-times"></i> Hayır, Yeni Başla';
+                    noBtn.onclick = function() {
+                        localStorage.removeItem('meraChatHistory');
+                        chatContext = [];
+                        historyMessage.remove();
+                        addWelcomeMessage();
+                        showNotification('Geçmiş temizlendi! Yeni sohbet başlatıldı.');
+                    };
+                    
+                    historyOptions.appendChild(yesBtn);
+                    historyOptions.appendChild(noBtn);
+                    
+                    historyMessage.appendChild(messageHeader);
+                    historyMessage.appendChild(messageText);
+                    historyMessage.appendChild(historyOptions);
+                    
+                    chatBox.appendChild(historyMessage);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    // Geçmiş yoksa direkt hoşgeldin mesajı göster
+                    addWelcomeMessage();
+                }
+            }
+
+            // Hoşgeldin mesajı ekle
+            function addWelcomeMessage() {
+                addMessageToChat("Merhaba! Hoşgeldiniz. Ben Mera Beta 0.4, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Sohbet geçmişinizi kaydediyor, favori sorular oluşturabiliyor ve bağlam hafızamla daha akıllı yanıtlar verebiliyorum!", 'ai');
+                updateSuggestions();
+            }
+
+            // Sohbet geçmişi yükleme
+            function loadChatHistory() {
+                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
+                if (history.length > 0) {
+                    // Geçmişi yüklemeden önce bilgi mesajı göster
+                    const infoMessage = document.createElement('div');
+                    infoMessage.classList.add('history-message');
+                    infoMessage.innerHTML = `<i class="fas fa-history"></i> <strong>${history.length} mesaj</strong> önceki konuşmadan yükleniyor...`;
+                    chatBox.appendChild(infoMessage);
+                    
+                    // 1 saniye sonra mesajları yükle
+                    setTimeout(() => {
+                        infoMessage.remove();
+                        history.forEach(item => {
+                            addMessageToChat(item.question, 'user', false);
+                            addMessageToChat(item.answer, 'ai', false);
+                            
+                            // Bağlam hafızasını da güncelle
+                            chatContext.push({ role: 'user', content: item.question });
+                            chatContext.push({ role: 'assistant', content: item.answer });
+                        });
+                        
+                        // Bağlam hafızasını sınırla
+                        if (chatContext.length > MAX_CONTEXT_LENGTH * 2) {
+                            chatContext = chatContext.slice(-MAX_CONTEXT_LENGTH * 2);
+                        }
+                        
+                        showNotification('Önceki konuşma geçmişi yüklendi!');
+                    }, 1000);
+                }
+            }
+
             // Tema değiştirme
             themeToggle.addEventListener('click', function() {
                 document.body.classList.toggle('dark-mode');
@@ -1100,15 +1237,6 @@
                 }
                 
                 localStorage.setItem('meraFavorites', JSON.stringify(favorites));
-            }
-            
-            // Sohbet geçmişi yükleme
-            function loadChatHistory() {
-                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
-                history.forEach(item => {
-                    addMessageToChat(item.question, 'user', false);
-                    addMessageToChat(item.answer, 'ai', false);
-                });
             }
             
             // Sohbet geçmişi kaydetme
@@ -1329,7 +1457,7 @@
                 
                 // Bazı basit selamlama durumları
                 if (normalizedMessage.includes('merhaba') || normalizedMessage.includes('selam') || normalizedMessage.includes('hello') || normalizedMessage.includes('hi')) {
-                    return "Merhaba! Ben Mera Beta 0.3. Size RTX 5000 serisi ve diğer PC bileşenleri hakkında nasıl yardımcı olabilirim?";
+                    return "Merhaba! Ben Mera Beta 0.4. Size RTX 5000 serisi ve diğer PC bileşenleri hakkında nasıl yardımcı olabilirim?";
                 }
                 
                 if (normalizedMessage.includes('teşekkür') || normalizedMessage.includes('sağ ol') || normalizedMessage.includes('thanks') || normalizedMessage.includes('teşekkürler')) {
